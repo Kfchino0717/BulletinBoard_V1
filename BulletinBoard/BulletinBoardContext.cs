@@ -1,44 +1,53 @@
-using BulletinBoard.Entities;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using BulletinBoard.Entities;
 
-namespace BulletinBoard;
-
-public class BulletinBoardContext : DbContext
+namespace BulletinBoard
 {
-    public virtual DbSet<Post> Post { get; set; } = null!;
-    
-    public BulletinBoardContext()
+    public partial class BulletinBoardContext : DbContext
     {
-    }
-
-    public BulletinBoardContext(DbContextOptions options) : base(options)
-    {
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.UseCollation("utf8mb4_0900_ai_ci")
-            .HasCharSet("utf8mb4");
-
-        modelBuilder.Entity<Post>(entity =>
+        public BulletinBoardContext()
         {
-            entity.ToTable("post");
+        }
 
-            entity.HasComment("貼文");
+        public BulletinBoardContext(DbContextOptions<BulletinBoardContext> options)
+            : base(options)
+        {
+        }
 
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .HasComment("流水編號");
+        public virtual DbSet<Post> Post { get; set; } = null!;
 
-            entity.Property(e => e.Title)
-                .HasMaxLength(100)
-                .HasColumnName("title")
-                .HasComment("標題");
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.UseCollation("utf8mb4_0900_ai_ci")
+                .HasCharSet("utf8mb4");
 
-            entity.Property(e => e.Content)
-                .HasColumnType("text")
-                .HasColumnName("content")
-                .HasComment("內文");
-        });
+            modelBuilder.Entity<Post>(entity =>
+            {
+                entity.ToTable("post");
+
+                entity.HasComment("貼文");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .HasComment("流水編號");
+
+                entity.Property(e => e.Content)
+                    .HasColumnType("text")
+                    .HasColumnName("content")
+                    .HasComment("內文");
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(100)
+                    .HasColumnName("title")
+                    .HasComment("標題");
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
